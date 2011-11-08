@@ -46,8 +46,13 @@ class MyBot:
 
 
     def do_move_location(self, loc, dest):
-        directions = self.ants.direction(loc, dest)
-        for direction in directions:
+        if loc == dest:
+            return False
+#        print >> sys.stderr, (loc, dest)
+        directions = self.ants.path_finding(loc, dest, [], [])
+
+        if directions != False:
+            direction = directions.pop()
             if self.do_move_direction(loc, direction):
                 self.targets[dest] = loc
                 return True
@@ -93,7 +98,6 @@ class MyBot:
                         continue
                 r_loc = ants.random_loc()
                 self.random_targets[ ant_id ] = r_loc
-                print >> sys.stderr, r_loc
                 self.do_move_location(ant_loc, r_loc)
 
 

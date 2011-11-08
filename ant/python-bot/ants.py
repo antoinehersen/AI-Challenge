@@ -36,6 +36,8 @@ BEHIND = {'n': 's',
           'e': 'w',
           'w': 'e'}
 
+DIRS = [ 'n', 's', 'e', 'w' ]
+
 class Ants():
     def __init__(self):
         self.cols = None
@@ -55,6 +57,7 @@ class Ants():
         self.turns = 0
         self.ant_id_counter = 0
         self.ant_id = {}
+        self.precomputed_path = {}
 
     def setup(self, data):
         'parse initial input and setup starting game state'
@@ -206,6 +209,37 @@ class Ants():
         d_col = min(abs(col1 - col2), self.cols - abs(col1 - col2))
         d_row = min(abs(row1 - row2), self.rows - abs(row1 - row2))
         return d_row + d_col
+
+    def path_finding(self, loc, dest, path = [], visited = [] ):
+        if loc == dest:
+            return path
+
+        pb = (loc, dest)
+        if pb in self.precomputed_path:
+            return self.precomputed_path[pb]
+
+        if self.time_remaining() < 10:
+            False
+
+        visited.append(loc)
+
+        choices = [ (direct, self.destination( loc, direct) ) for direct in DIRS]
+        choices = [ (direct, n_loc) for direct, n_loc in choices
+                    if n_loc not in visited
+                    and self.passable( n_loc) ]
+        choices = [ ( self.distance( dest, n_loc), n_loc, direct) for direct, n_loc in choices ]
+        choices.sort()
+
+        for (dist, n_loc, direct) in choices:
+            path.append( direct)
+            res = self.path_finding( n_loc, dest, path, visited)
+            if res != False:
+                self.precomputed_path[pb] = res
+                return res
+            path.pop()
+
+        visited.pop()
+        return False
 
     def direction(self, loc1, loc2):
         'determine the 1 or 2 fastest (closest) directions to reach a location'
