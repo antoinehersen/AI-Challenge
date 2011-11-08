@@ -53,6 +53,8 @@ class Ants():
         self.attackradius2 = 0
         self.spawnradius2 = 0
         self.turns = 0
+        self.ant_id_counter = 0
+        self.ant_id = {}
 
     def setup(self, data):
         'parse initial input and setup starting game state'
@@ -120,6 +122,10 @@ class Ants():
                         if tokens[0] == 'a':
                             self.map[row][col] = owner
                             self.ant_list[(row, col)] = owner
+                            if owner == MY_ANT:
+                                if (row,col) not in self.ant_id:
+                                    self.ant_id[ (row, col) ] = self.ant_id_counter
+                                    self.ant_id_counter += 1
                         elif tokens[0] == 'd':
                             # food could spawn on a spot where an ant just died
                             # don't overwrite the space unless it is land
@@ -137,8 +143,17 @@ class Ants():
     def issue_order(self, order):
         'issue an order by writing the proper ant location and direction'
         (row, col), direction = order
+        loc = (row, col)
         sys.stdout.write('o %s %s %s\n' % (row, col, direction))
         sys.stdout.flush()
+        if loc not in self.ant_id:
+            print >> sys.stderr, loc
+            print >> sys.stderr, self.ant_id
+        id = self.ant_id[ loc ]
+        del self.ant_id[ loc ]
+        dest = self.destination( loc, direction)
+        self.ant_id[ dest] = id
+
 
     def finish_turn(self):
         'finish the turn by writing the go line'
@@ -220,6 +235,14 @@ class Ants():
             if col1 - col2 <= width2:
                 d.append('w')
         return d
+
+    def random_loc(self):
+        row = random.randint(0, self.rows - 1)
+        col = random.randint(0, self.cols - 1)
+        if self.passable( (row,col)) :
+            return (row, col)
+        else:
+            return self.random_loc()
 
     def visible(self, loc):
         ' determine which squares are visible to the given player '
