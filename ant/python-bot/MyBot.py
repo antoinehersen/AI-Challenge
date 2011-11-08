@@ -49,10 +49,10 @@ class MyBot:
         if loc == dest:
             return False
 #        print >> sys.stderr, (loc, dest)
-        directions = self.ants.path_finding(loc, dest, [], [])
+        directions = self.ants.path_finding(loc, dest, [])
 
         if directions != False:
-            direction = directions.pop()
+            direction = directions.pop(0)
             if self.do_move_direction(loc, direction):
                 self.targets[dest] = loc
                 return True

@@ -210,9 +210,9 @@ class Ants():
         d_row = min(abs(row1 - row2), self.rows - abs(row1 - row2))
         return d_row + d_col
 
-    def path_finding(self, loc, dest, path = [], visited = [] ):
+    def path_finding(self, loc, dest, visited = [] ):
         if loc == dest:
-            return path
+            return []
 
         pb = (loc, dest)
         if pb in self.precomputed_path:
@@ -231,12 +231,11 @@ class Ants():
         choices.sort()
 
         for (dist, n_loc, direct) in choices:
-            path.append( direct)
-            res = self.path_finding( n_loc, dest, path, visited)
+            res = self.path_finding( n_loc, dest, visited)
             if res != False:
-                self.precomputed_path[pb] = res
+                res.append( direct)
+                self.precomputed_path[pb] = list(res)
                 return res
-            path.pop()
 
         visited.pop()
         return False
